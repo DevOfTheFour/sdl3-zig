@@ -238,6 +238,65 @@ test "pixel formats describe themselves" {
     try std.testing.expectEqual(original, details.unmap(packed_pixel, null));
 }
 
+/// Catches what SDL would otherwise write to stderr, which both keeps the
+/// test runner's protocol clean and lets the test assert on the result.
+const LogSink = struct {
+    var last: [4096]u8 = undefined;
+    var last_len: usize = 0;
+    var count: usize = 0;
+
+    fn write(
+        userdata: ?*anyopaque,
+        category: c_int,
+        level: sdl.log.Priority,
+        text: [*c]const u8,
+    ) callconv(.c) void {
+        _ = .{ userdata, category, level };
+        const message = std.mem.span(text);
+        last_len = @min(message.len, last.len);
+        @memcpy(last[0..last_len], message[0..last_len]);
+        count += 1;
+    }
+
+    fn lastMessage() []const u8 {
+        return last[0..last_len];
+    }
+};
+
+test "the log helpers format, and truncate rather than overrun" {
+    // refAllDecls references a generic function without instantiating it, so
+    // nothing below `messageFmt`'s signature is compiled until something
+    // calls it with real arguments. These calls are what compile the body --
+    // and what caught `std.fmt.bufPrintZ` no longer existing in 0.17.
+    sdl.log.setOutputFunction(LogSink.write, null);
+    sdl.log.setAllPriorities(.trace);
+    LogSink.count = 0;
+
+    sdl.log.info("plain", .{});
+    try std.testing.expectEqualStrings("plain", LogSink.lastMessage());
+
+    sdl.log.info("{d} windows, {s} driver", .{ 2, "metal" });
+    try std.testing.expectEqualStrings("2 windows, metal driver", LogSink.lastMessage());
+
+    sdl.log.warn("{t}", .{sdl.BlendMode.blend});
+    try std.testing.expectEqualStrings("blend", LogSink.lastMessage());
+
+    sdl.log.err("{s}", .{"failed"});
+    sdl.log.debug("{x}", .{@as(u32, 0xdead)});
+    sdl.log.critical("{any}", .{@as(?u8, null)});
+    sdl.log.message(.render, .info, "already a sentinel slice");
+    try std.testing.expectEqualStrings("already a sentinel slice", LogSink.lastMessage());
+
+    // A message longer than the buffer is cut, not overrun. One byte of the
+    // buffer is reserved for the terminator SDL's `%s` needs.
+    const long: [sdl.log.max_formatted_len * 2]u8 = @splat('x');
+    sdl.log.info("{s}", .{long});
+    try std.testing.expectEqual(sdl.log.max_formatted_len - 1, LogSink.lastMessage().len);
+    for (LogSink.lastMessage()) |byte| try std.testing.expectEqual(@as(u8, 'x'), byte);
+
+    try std.testing.expectEqual(@as(usize, 8), LogSink.count);
+}
+
 test "an error carries SDL's description" {
     sdl.clearError();
     // A window cannot be made before the video subsystem exists, and even if

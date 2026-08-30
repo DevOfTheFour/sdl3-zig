@@ -71,12 +71,15 @@ pub fn messageFmt(
     comptime fmt: []const u8,
     args: anytype,
 ) void {
+    // One byte is held back for the terminator SDL's `%s` needs. On overflow
+    // the writer keeps what it managed to write, which is the truncation.
     var buffer: [max_formatted_len]u8 = undefined;
-    const text = std.fmt.bufPrintZ(&buffer, fmt, args) catch blk: {
-        buffer[buffer.len - 1] = 0;
-        break :blk buffer[0 .. buffer.len - 1 :0];
-    };
-    message(category, level, text);
+    var writer: std.Io.Writer = .fixed(buffer[0 .. buffer.len - 1]);
+    writer.print(fmt, args) catch {};
+
+    const written = writer.buffered().len;
+    buffer[written] = 0;
+    message(category, level, buffer[0..written :0]);
 }
 
 pub fn info(comptime fmt: []const u8, args: anytype) void {
