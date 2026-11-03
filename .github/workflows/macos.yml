@@ -33,12 +33,14 @@ jobs:
       - name: Debug build and tests
         run: |
           zig build -Doptimize=Debug
+          zig build examples -Doptimize=Debug
           zig build test -Doptimize=Debug
           zig build bindings
 
       - name: ReleaseSafe build and tests
         run: |
           zig build -Doptimize=ReleaseSafe
+          zig build examples -Doptimize=ReleaseSafe
           zig build test -Doptimize=ReleaseSafe
 
       - name: Shared SDL library

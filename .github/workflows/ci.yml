@@ -101,8 +101,11 @@ jobs:
       - name: Print Zig version
         run: zig version
 
-      - name: Build SDL and examples
+      - name: Build SDL
         run: zig build -Doptimize=${{ matrix.optimize }}
+
+      - name: Build all examples
+        run: zig build examples -Doptimize=${{ matrix.optimize }}
         
       - name: Run binding tests (Linux)
         if: runner.os == 'Linux'

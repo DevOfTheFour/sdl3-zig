@@ -66,10 +66,20 @@ pub fn build(b: *std.Build) void {
     const run_tests = b.addRunArtifact(tests);
     b.step("test", "Run the binding tests").dependOn(&run_tests.step);
 
+    // Examples are built explicitly with `zig build examples`.
+    // Keep them separate from the default install step.
     const examples_step = b.step("examples", "Build every example");
-    for ([_][]const u8{ "info", "window", "events", "shapes", "audio" }) |name| {
+
+    for ([_][]const u8{
+        "info",
+        "window",
+        "events",
+        "shapes",
+        "audio",
+    }) |name| {
         addExample(b, examples_step, sdl3, target, optimize, name);
     }
+
     b.getInstallStep().dependOn(examples_step);
 }
 
