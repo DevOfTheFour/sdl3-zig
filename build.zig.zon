@@ -1,7 +1,7 @@
 .{
     .name = .sdl3,
     .fingerprint = 0x6188f62fca02ec58,
-    .version = "0.1.0",
+    .version = "0.2.0-dev.1",
     .minimum_zig_version = "0.17.0",
     .dependencies = .{
         .sdl = .{
@@ -19,5 +19,6 @@
         "LICENSE",
         "README.md",
         "SKILL.md",
+        "CHANGELOG.md",
     },
 }
