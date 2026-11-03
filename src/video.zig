@@ -178,20 +178,50 @@ pub const Display = struct {
     /// Iterates the fullscreen modes this display advertises, largest first.
     /// Call `deinit` on the iterator: the array is SDL's to free.
     pub fn fullscreenModes(self: Display) Error!ModeIterator {
+        // SDL 3.4.18 may invoke memcpy with a null source
+        // when the display has zero fullscreen modes.
+        //
+        // The dummy video driver does not expose fullscreen
+        // modes, so return an empty iterator without calling
+        // SDL_GetFullscreenDisplayModes().
+        if (currentDriver()) |driver| {
+            if (std.mem.eql(u8, driver, "dummy")) {
+                // Preserve invalid-display error handling.
+                _ = try self.desktopMode();
+
+                return .{
+                    .modes = &.{},
+                    .owns_memory = false,
+                };
+            }
+        }
+
         var count: c_int = 0;
+
         const list = try errors.checkPtr(@as(
             ?[*]const *const DisplayMode,
-            @ptrCast(raw.SDL_GetFullscreenDisplayModes(self.id, &count)),
+            @ptrCast(raw.SDL_GetFullscreenDisplayModes(
+                self.id,
+                &count,
+            )),
         ));
-        return .{ .modes = list[0..@intCast(count)] };
+
+        return .{
+            .modes = list[0..@intCast(count)],
+        };
     }
 
     pub const ModeIterator = struct {
         modes: []const *const DisplayMode,
         index: usize = 0,
 
+        // True only when the array was allocated by SDL.
+        owns_memory: bool = true,
+
         pub fn next(self: *ModeIterator) ?*const DisplayMode {
-            if (self.index == self.modes.len) return null;
+            if (self.index == self.modes.len)
+                return null;
+
             defer self.index += 1;
             return self.modes[self.index];
         }
@@ -201,7 +231,11 @@ pub const Display = struct {
         }
 
         pub fn deinit(self: ModeIterator) void {
-            raw.SDL_free(@ptrCast(@constCast(self.modes.ptr)));
+            if (self.owns_memory) {
+                raw.SDL_free(
+                    @ptrCast(@constCast(self.modes.ptr)),
+                );
+            }
         }
     };
 
