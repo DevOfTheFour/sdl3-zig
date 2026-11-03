@@ -1,8 +1,8 @@
 # sdl3-zig
 
-Zig 0.17 bindings for [SDL 3](https://github.com/libsdl-org/SDL). The package:
+Zig 0.17 bindings for [SDL 3](https://github.com/libsdl-org/SDL). This is a maintained fork of [zmscode/sdl3-zig](https://github.com/zmscode/sdl3-zig). The package:
 
-- builds SDL 3.4.14 from pinned source, so there is nothing to install and it cross-compiles;
+- builds SDL 3.4.18 from pinned source, so there is nothing to install and it cross-compiles;
 - provides an idiomatic, resource-safe Zig API and the complete raw C ABI;
 - covers video, the 2D renderer, events, keyboard, mouse, gamepads, audio, the GPU API,
   surfaces, properties, hints, logging, timers, and filesystem paths;
@@ -15,7 +15,7 @@ version-specific integration guidance.
 ## Use as a dependency
 
 ```sh
-zig fetch --save=sdl3 git+https://github.com/zmscode/sdl3-zig.git
+zig fetch --save=sdl3 git+https://github.com/DevOfTheFour/sdl3-zig.git
 ```
 
 For local development the equivalent path dependency is:
@@ -261,6 +261,6 @@ Tests that need a display skip rather than fail in a headless environment.
 ## Where SDL comes from
 
 SDL is built by [castholm/SDL](https://github.com/castholm/SDL), which is upstream SDL ported to
-the Zig build system, pinned here at `v0.5.3+3.4.14`. That is the same arrangement as building the
+the Zig build system, pinned here at `v0.6.0+3.4.18`. That is the same arrangement as building the
 C sources directly — nothing to install, and it cross-compiles — without this package carrying its
 own copy of SDL's several-hundred-file build configuration.
