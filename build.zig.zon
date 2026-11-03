@@ -2,11 +2,11 @@
     .name = .sdl3,
     .fingerprint = 0x6188f62fca02ec58,
     .version = "0.1.0",
-    .minimum_zig_version = "0.17.0-dev.1902+896bd9e15",
+    .minimum_zig_version = "0.17.0",
     .dependencies = .{
         .sdl = .{
-            .url = "https://github.com/castholm/SDL/archive/refs/tags/v0.5.3+3.4.14.tar.gz",
-            .hash = "sdl-0.5.3+3.4.14-SDL--v4eqAGuIKFsspMVxBxZf1OIEmmH-yHDdEl9ZRdX",
+            .url = "https://github.com/castholm/SDL/archive/refs/tags/v0.6.0%2B3.4.18.tar.gz",
+            .hash = "sdl-0.6.0+3.4.18-SDL--p-gqAGWpnfTLlhs0dgjDtc4P4_CHeNLGY_SX_Fv",
         },
     },
     .paths = .{
