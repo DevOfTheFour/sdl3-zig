@@ -1,0 +1,45 @@
+name: macOS compatibility
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "37 4 * * 2"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS 15 / Zig 0.17
+    runs-on: macos-15
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.0
+
+      - name: Show compiler version
+        run: zig version
+
+      - name: Debug build and tests
+        run: |
+          zig build -Doptimize=Debug
+          zig build test -Doptimize=Debug
+          zig build bindings
+
+      - name: ReleaseSafe build and tests
+        run: |
+          zig build -Doptimize=ReleaseSafe
+          zig build test -Doptimize=ReleaseSafe
+
+      - name: Shared SDL library
+        run: zig build -Dshared=true -Doptimize=ReleaseSafe
