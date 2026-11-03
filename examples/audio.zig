@@ -15,17 +15,32 @@ const Args = struct {
 };
 
 fn parseArgs(init: std.process.Init) !Args {
+    const argv = try init.minimal.args.toSlice(
+        init.arena.allocator(),
+    );
+
     var result: Args = .{};
-    var args = init.minimal.args.iterate();
-    _ = args.next();
-    while (args.next()) |arg| {
+    var i: usize = 1;
+
+    while (i < argv.len) : (i += 1) {
+        const arg = argv[i];
+
         if (std.mem.eql(u8, arg, "--seconds")) {
-            const value = args.next() orelse return error.MissingValue;
-            result.seconds = try std.fmt.parseInt(u64, value, 10);
+            i += 1;
+
+            if (i >= argv.len)
+                return error.MissingValue;
+
+            result.seconds = try std.fmt.parseInt(
+                u64,
+                argv[i],
+                10,
+            );
         } else {
             result.path = arg;
         }
     }
+
     return result;
 }
 

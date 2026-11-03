@@ -6,14 +6,25 @@ const std = @import("std");
 const sdl = @import("sdl3");
 
 fn frameLimit(init: std.process.Init) !?u64 {
-    var args = init.minimal.args.iterate();
-    _ = args.next();
-    while (args.next()) |arg| {
-        if (std.mem.eql(u8, arg, "--frames")) {
-            const value = args.next() orelse return error.MissingValue;
-            return try std.fmt.parseInt(u64, value, 10);
+    const args = try init.minimal.args.toSlice(
+        init.arena.allocator(),
+    );
+
+    var i: usize = 1;
+
+    while (i < args.len) : (i += 1) {
+        if (std.mem.eql(u8, args[i], "--frames")) {
+            if (i + 1 >= args.len)
+                return error.MissingValue;
+
+            return try std.fmt.parseInt(
+                u64,
+                args[i + 1],
+                10,
+            );
         }
     }
+
     return null;
 }
 
