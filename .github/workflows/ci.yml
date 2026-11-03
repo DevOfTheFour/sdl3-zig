@@ -85,7 +85,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            pkg-config libx11-dev libxext-dev libxrandr-dev \
+            pkg-config xvfb xauth \
+            libx11-dev libxext-dev libxrandr-dev \
             libxcursor-dev libxi-dev libxfixes-dev libxss-dev \
             libxkbcommon-dev libwayland-dev wayland-protocols \
             libasound2-dev libpulse-dev libudev-dev libdbus-1-dev \
@@ -102,11 +103,19 @@ jobs:
 
       - name: Build SDL and examples
         run: zig build -Doptimize=${{ matrix.optimize }}
-
-      - name: Run binding tests
+        
+      - name: Run binding tests (Linux)
+        if: runner.os == 'Linux'
         env:
-          SDL_VIDEODRIVER: ${{ runner.os == 'Linux' && 'dummy' || '' }}
-          SDL_AUDIODRIVER: ${{ runner.os == 'Linux' && 'dummy' || '' }}
+          SDL_VIDEODRIVER: x11
+          SDL_AUDIODRIVER: dummy
+        run: |
+          xvfb-run --auto-servernum \
+            --server-args="-screen 0 1280x720x24" \
+            zig build test -Doptimize=${{ matrix.optimize }}
+
+      - name: Run binding tests (Windows / macOS)
+        if: runner.os != 'Linux'
         run: zig build test -Doptimize=${{ matrix.optimize }}
 
       - name: Generate raw C bindings

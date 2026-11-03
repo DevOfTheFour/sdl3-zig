@@ -425,10 +425,22 @@ test "a window reports what it was asked for" {
 }
 
 test "displays report modes" {
-    sdl.init(.{ .video = true }) catch return error.SkipZigTest;
+    sdl.init(.{ .video = true }) catch
+        return error.SkipZigTest;
     defer sdl.quit();
 
-    const display = sdl.Display.primary() catch return error.SkipZigTest;
+    // The dummy driver has no guaranteed fullscreen modes.
+    // SDL 3.4.18 can trigger UB when enumerating zero modes.
+    const driver = sdl.video.currentDriver() orelse
+        return error.SkipZigTest;
+
+    if (std.mem.eql(u8, driver, "dummy")) {
+        return error.SkipZigTest;
+    }
+
+    const display = sdl.Display.primary() catch
+        return error.SkipZigTest;
+
     try std.testing.expect(display.name().len > 0);
     try std.testing.expect(display.contentScale() > 0);
 
@@ -437,6 +449,7 @@ test "displays report modes" {
 
     var modes = try display.fullscreenModes();
     defer modes.deinit();
+
     try std.testing.expect(modes.count() > 0);
     try std.testing.expect(modes.next() != null);
 }
