@@ -24,7 +24,7 @@ const dependency = b.dependency("sdl3", .{
 exe.root_module.addImport("sdl3", dependency.module("sdl3"));
 ```
 
-SDL 3.4.18 is compiled from pinned source as part of the build. There is no system SDL to install.
+SDL 3.4.20 is compiled from pinned source as part of the build. There is no system SDL to install.
 
 ## The shape of a program
 
