@@ -2,7 +2,7 @@
 
 Zig 0.17 bindings for [SDL 3](https://github.com/libsdl-org/SDL). This is a maintained fork of [zmscode/sdl3-zig](https://github.com/zmscode/sdl3-zig). The package:
 
-- builds SDL 3.4.18 from pinned source, so there is nothing to install and it cross-compiles;
+- builds SDL 3.4.20 from pinned source, so there is nothing to install and it cross-compiles;
 - provides an idiomatic, resource-safe Zig API and the complete raw C ABI;
 - covers video, the 2D renderer, events, keyboard, mouse, gamepads, audio, the GPU API,
   surfaces, properties, hints, logging, timers, and filesystem paths;
