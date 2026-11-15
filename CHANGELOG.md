@@ -16,7 +16,7 @@ The Zig package version is independent of the bundled SDL version.
 
 ### Changed
 - Updated bundled SDL from 3.4.14 to 3.4.20.
-- Updated minimum supported Zig version to 0.17.0.
+- Updated minimum supported Zig version to 0.17.1.
 - Updated README and SKILL.md for the maintained fork.
 
 ### Fixed
