@@ -261,6 +261,6 @@ Tests that need a display skip rather than fail in a headless environment.
 ## Where SDL comes from
 
 SDL is built by [castholm/SDL](https://github.com/castholm/SDL), which is upstream SDL ported to
-the Zig build system, pinned here at `v0.6.0+3.4.18`. That is the same arrangement as building the
+the Zig build system, pinned here at `v0.6.1+3.4.20`. That is the same arrangement as building the
 C sources directly — nothing to install, and it cross-compiles — without this package carrying its
 own copy of SDL's several-hundred-file build configuration.
